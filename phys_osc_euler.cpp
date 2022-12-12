@@ -58,7 +58,7 @@ template <class A>
 class Euler
 {
 public:
-    static A make_step(A& state,  float dt, std::ofstream &myfile_e, double omega)
+    static A make_step_eul(A& state,  float dt, std::ofstream &myfile_e, double omega)
     {
         myfile_e << state[0] << ' ' << state[1] << '\n'; 
         auto tmp = state + state.eul(omega)*dt;
@@ -79,15 +79,16 @@ int main()
     myfile_acc.open ("data2_1.txt");
     myfile_e << data["n"] << ' ' << data["omega"] << '\n';
     MyState<double> A{std::array<double,2>{data["x0"], data["y0"]}};
+    MyState<double> B{std::array<double,2>{data["x0"], data["y0"]}};
     auto k = data["xk"];
     const double & my_value = data["xk"];
     double h = (static_cast<double>(data["xk"]) - static_cast<double>(data["x0"])) / static_cast<double>(data["n"]);
     for (int i = 0; i < data["n"]; ++i)
     {
-        A = Euler<MyState<double>>::make_step(A, 0.01, myfile_e, data["omega"]);
+        A = Euler<MyState<double>>::make_step_eul(A, 0.01, myfile_e, data["omega"]);
     }
 
-    auto step = Euler<MyState<double>>::make_step(A, 0.01, myfile_e, data["omega"]);
+    auto step = Euler<MyState<double>>::make_step_eul(A, 0.01, myfile_e, data["omega"]);
 
     std::cout << "hello" << std::endl;
     MyState<double> X{std::array<double,2>{1.00, 2.00}};
