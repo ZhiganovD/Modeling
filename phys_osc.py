@@ -40,9 +40,23 @@ def acccompar(t, a_e, a_h, diff):
     
     plt.show()
 
+def damp(t, x, y, y2):
+    fig, axs = plt.subplots(3)
+    fig.suptitle('Damped osc')
+    
+    axs[0].plot(t, x, color = 'g')
+
+    axs[1].plot(x, y, color = 'g')
+
+    axs[2].plot(t, y2, color = 'g')
+
+    
+    plt.show()
+
 my_data_e = np.loadtxt("data0_1.txt")
 my_data_h = np.loadtxt("data1_1.txt")
 my_data_RK4 = np.loadtxt("data2_1.txt")
+my_data_damped = np.loadtxt("data3_1.txt")
 #print(my_data)
 
 n = int(my_data_e[0][0])
@@ -85,10 +99,19 @@ for i in range(0, 100000):
     a_h.append(acc(t, x_h, i))
     diff.append(abs(a_e[i] - a_h[i]))
 
+x_damped = []
+y_damped = []
+y_damped_2 = []
+for i in range(1, n + 1):
+    x_damped.append(my_data_damped[i][0])
+    y_damped.append(my_data_damped[i][1])
+    y_damped_2.append(pow(my_data_damped[i][1], 2))
+
 #modelcompar(t, x1, y1, x_e, y_e, x_h, y_h, y_e_2, y_h_2)
 
+#modelcompar(t, x1, y1, x_RK, y_RK, x_h, y_h, y_RK_2, y_h_2)
 
-modelcompar(t, x1, y1, x_RK, y_RK, x_h, y_h, y_RK_2, y_h_2)
+damp(t, x_damped, y_damped, y_damped_2)
 
 #acccompar(t, a_e, a_h, diff)
 

@@ -33,6 +33,11 @@ public:
         return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0])}};
     }
 
+    MyState func_damp(double omega, double gamma) const
+    {
+        return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0]) - 2 * gamma * state[1]}};
+    }
+
     MyState operator+( MyState y) 
     {
         return MyState {std::array<MP,2> {state[0] + y[0], state[1] + y[1]}};
@@ -59,6 +64,11 @@ public:
         std::cout << y[0] << " " << y[1] << std::endl;
     }
 };
+
+double Quality(double gamma, double omega)
+{
+    return M_PI / (gamma * 2 * M_PI / omega);
+}
 
 template <class A>
 class Euler
@@ -93,6 +103,14 @@ public:
         state = state + (k1 + k2 * 2 + k3 * 2 + k4) * (dt / 6);
         return state;
     }
+
+    static A make_step_hoin_damped(A& state, float dt, std::ofstream &myfile_damped, double omega, double gamma)
+    {
+        myfile_damped << state[0] << ' ' << state[1] << '\n';
+        auto tmp = state + state.func_damp(omega, gamma) * dt;
+        state = state + (state.func_damp(omega, gamma) + tmp.func_damp(omega, gamma)) * dt / 2.0;
+        return state;
+    }
 };
 
 int main()
@@ -103,18 +121,22 @@ int main()
     std::ofstream myfile_e;
     std::ofstream myfile_h;
     std::ofstream myfile_RK4;
+    std::ofstream myfile_damped;
 
     myfile_e.open ("data0_1.txt");
     myfile_h.open ("data1_1.txt");
     myfile_RK4.open ("data2_1.txt");
+    myfile_damped.open ("data3_1.txt");
 
     myfile_e << data["n"] << ' ' << data["omega"] << '\n';
     myfile_h << data["n"] << ' ' << data["omega"] << '\n';
     myfile_RK4 << data["n"] << ' ' << data["omega"] << '\n';
+    myfile_damped << data["n"] << ' ' << data["omega"] << '\n';
 
     MyState<double> A{std::array<double,2>{data["x0"], data["y0"]}};
     MyState<double> B{std::array<double,2>{data["x0"], data["y0"]}};
     MyState<double> C{std::array<double,2>{data["x0"], data["y0"]}};
+    MyState<double> D{std::array<double,2>{data["x0"], data["y0"]}};
 
     auto k = data["xk"];
     const double & my_value = data["xk"];
@@ -150,6 +172,10 @@ int main()
     }
     auto end_RK = sc.now();
 
+    for (int i = 0; i < data["n"]; ++i)
+    {
+        D = Euler<MyState<double>>::make_step_hoin_damped(D, 0.01, myfile_damped, data["omega"], data["gamma"][0]);
+    }
 
     /*MyState<double> X{std::array<double,2>{1.00, 2.00}};
     MyState<double> Y{std::array<double,2>{3.00, 4.00}};
@@ -163,10 +189,12 @@ int main()
     auto time_span_h = static_cast<std::chrono::duration<double>>(end_h - start_h);
     auto time_span_RK = static_cast<std::chrono::duration<double>>(end_RK - start_RK);
 
-    std::cout << time_span_e.count() << " " << time_span_h.count() << " " << time_span_RK.count();
+    std::cout << time_span_e.count() << " " << time_span_h.count() << " " << time_span_RK.count() << std::endl;
+    std::cout << Quality(data["gamma"][0], data["omega"]) << std::endl;
 
     myfile_e.close();
     myfile_h.close();
     myfile_RK4.close();
+    myfile_damped.close();
     return 0;
 }
