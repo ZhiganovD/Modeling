@@ -22,7 +22,7 @@ public:
         std::copy_n(s.begin(), s.size(), state.begin());
     }
 
-    MyState func(double omega) const
+    MyState eul(double omega) const
     {
         return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0])}};
     }
@@ -37,14 +37,20 @@ public:
         return MyState {std::array<MP,2> {state[0] * a, state[1] * a}};
     }
 
-    MyState& operator/(double const a) 
+    MyState operator/(double const a) 
     {
         return MyState {std::array<MP,2> {state[0] / a, state[1] / a}};
     }
 
-    MyState& operator=(MyState& y) 
+    void operator=(MyState y) 
     {
-        return MyState {std::array<MP,2> {y[0], y[1]}};
+        state[0] = y[0];
+        state[1] = y[1];
+    }
+
+    void print(MyState y)
+    {
+        std::cout << y[0] << " " << y[1] << std::endl;
     }
 };
 
@@ -55,7 +61,7 @@ public:
     static A make_step(A& state,  float dt, std::ofstream &myfile_e, double omega)
     {
         myfile_e << state[0] << ' ' << state[1] << '\n'; 
-        auto tmp = state + state.func(omega)*dt;
+        auto tmp = state + state.eul(omega)*dt;
         state =  tmp;
         return state;
     }
@@ -81,10 +87,16 @@ int main()
         A = Euler<MyState<double>>::make_step(A, 0.01, myfile_e, data["omega"]);
     }
 
-    //auto step = Euler<MyState<double>>::make_step(A, 0.01, myfile_e, data["omega"]);
+    auto step = Euler<MyState<double>>::make_step(A, 0.01, myfile_e, data["omega"]);
 
     std::cout << "hello" << std::endl;
-    //std::cout << step[0] << step[1] << std::endl;
+    MyState<double> X{std::array<double,2>{1.00, 2.00}};
+    MyState<double> Y{std::array<double,2>{3.00, 4.00}};
+    X.print(X + Y);
+    X.print(X / 2);
+    X.print(X * 2);
+    X = Y;
+    X.print(X);
 
     return 0;
 }
