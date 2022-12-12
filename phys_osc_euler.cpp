@@ -28,9 +28,9 @@ public:
         return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0])}};
     }
 
-    MyState func_dt(double omega, double t) const
+    MyState func_force(double omega, double t, double gamma, double A) const
     {
-        return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0])}};
+        return MyState {std::array<MP,2> {state[1], (-1) * pow(omega, 2) * sin(state[0]) - 2 * gamma * state[1] - A * cos (omega * t)}};
     }
 
     MyState func_damp(double omega, double gamma) const
@@ -90,7 +90,7 @@ public:
         return state;
     }
 
-    static A make_step_RK4(A& state, float dt, std::ofstream &myfile_RK4, double omega, double t)
+    static A make_step_RK4(A& state, float dt, std::ofstream &myfile_RK4, double omega)
     {
         myfile_RK4 << state[0] << ' ' << state[1] << '\n';
         auto k1 = state.func(omega);
@@ -111,6 +111,20 @@ public:
         state = state + (state.func_damp(omega, gamma) + tmp.func_damp(omega, gamma)) * dt / 2.0;
         return state;
     }
+
+    static A make_step_RK4_force(A& state, float dt, std::ofstream &myfile_force, double omega, double t, double gamma, double Ampl)
+    {
+        myfile_force << state[0] << ' ' << state[1] << '\n';
+        auto k1 = state.func_force(omega, t, gamma, Ampl);
+        auto y0 = state + k1 * (dt / 2);
+        auto k2 = y0.func_force(omega, t + dt / 2, gamma, Ampl);
+        auto y1 = state + k2 * (dt / 2);
+        auto k3 = y1.func_force(omega, t + dt / 2, gamma, Ampl);
+        auto y2 = state + k3 * dt;
+        auto k4 = y2.func_force(omega, t + dt, gamma, Ampl);
+        state = state + (k1 + k2 * 2 + k3 * 2 + k4) * (dt / 6);
+        return state;
+    }
 };
 
 int main()
@@ -122,21 +136,25 @@ int main()
     std::ofstream myfile_h;
     std::ofstream myfile_RK4;
     std::ofstream myfile_damped;
+    std::ofstream myfile_force;
 
     myfile_e.open ("data0_1.txt");
     myfile_h.open ("data1_1.txt");
     myfile_RK4.open ("data2_1.txt");
     myfile_damped.open ("data3_1.txt");
+    myfile_force.open ("data4_1.txt");
 
     myfile_e << data["n"] << ' ' << data["omega"] << '\n';
     myfile_h << data["n"] << ' ' << data["omega"] << '\n';
     myfile_RK4 << data["n"] << ' ' << data["omega"] << '\n';
     myfile_damped << data["n"] << ' ' << data["omega"] << '\n';
+    myfile_force << data["n"] << ' ' << data["omega"] << '\n';
 
     MyState<double> A{std::array<double,2>{data["x0"], data["y0"]}};
     MyState<double> B{std::array<double,2>{data["x0"], data["y0"]}};
     MyState<double> C{std::array<double,2>{data["x0"], data["y0"]}};
     MyState<double> D{std::array<double,2>{data["x0"], data["y0"]}};
+    MyState<double> E{std::array<double,2>{data["x0"], data["y0"]}};
 
     auto k = data["xk"];
     const double & my_value = data["xk"];
@@ -167,14 +185,19 @@ int main()
     auto start_RK = sc.now();
     for (int i = 0; i < data["n"]; ++i)
     {
-        C = Euler<MyState<double>>::make_step_RK4(C, 0.01, myfile_RK4, data["omega"], t);
-        t += 0.01;
+        C = Euler<MyState<double>>::make_step_RK4(C, 0.01, myfile_RK4, data["omega"]);
     }
     auto end_RK = sc.now();
 
     for (int i = 0; i < data["n"]; ++i)
     {
         D = Euler<MyState<double>>::make_step_hoin_damped(D, 0.01, myfile_damped, data["omega"], data["gamma"][0]);
+    }
+
+    for (int i = 0; i < data["n"]; ++i)
+    {
+        E = Euler<MyState<double>>::make_step_RK4_force(E, 0.01, myfile_force, data["omega"], t, data["gamma"][0], data["ampl"]);
+        t += 0.01;
     }
 
     /*MyState<double> X{std::array<double,2>{1.00, 2.00}};

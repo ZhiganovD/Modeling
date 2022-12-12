@@ -57,6 +57,7 @@ my_data_e = np.loadtxt("data0_1.txt")
 my_data_h = np.loadtxt("data1_1.txt")
 my_data_RK4 = np.loadtxt("data2_1.txt")
 my_data_damped = np.loadtxt("data3_1.txt")
+my_data_force = np.loadtxt("data4_1.txt")
 #print(my_data)
 
 n = int(my_data_e[0][0])
@@ -107,11 +108,21 @@ for i in range(1, n + 1):
     y_damped.append(my_data_damped[i][1])
     y_damped_2.append(pow(my_data_damped[i][1], 2))
 
+x_force = []
+y_force = []
+y_force_2 = []
+for i in range(1, n + 1):
+    x_force.append(my_data_force[i][0])
+    y_force.append(my_data_force[i][1])
+    y_force_2.append(pow(my_data_force[i][1], 2))
+
 #modelcompar(t, x1, y1, x_e, y_e, x_h, y_h, y_e_2, y_h_2)
 
 #modelcompar(t, x1, y1, x_RK, y_RK, x_h, y_h, y_RK_2, y_h_2)
 
-damp(t, x_damped, y_damped, y_damped_2)
+#damp(t, x_damped, y_damped, y_damped_2)
+
+damp(t, x_force, y_force, y_force_2)
 
 #acccompar(t, a_e, a_h, diff)
 
