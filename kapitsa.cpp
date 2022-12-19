@@ -99,7 +99,7 @@ int main()
 
     myfile_k.open ("data0_2.txt");
 
-    myfile_k << data["n"] << ' ' << data["omega"] << '\n';
+    myfile_k << data["n"] << ' ' << data["n"] << '\n';
 
     MyState<double> A{std::array<double,2>{data["x0"], data["y0"]}};
 
