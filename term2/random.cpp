@@ -38,7 +38,7 @@ void random2(int k, int n, std::ofstream &myfile_rand)
     myfile_rand << std::endl;
 }
 
-void norm_distr(float mu, float sigma, int n, int k, std::ofstream &myfile_rand)
+void norm_distr(float mu, float sigma, int n, std::ofstream &myfile_rand)
 {
     std::normal_distribution<> d{mu, sigma};
 
@@ -47,7 +47,7 @@ void norm_distr(float mu, float sigma, int n, int k, std::ofstream &myfile_rand)
 
     for(int i = 0; i < n; ++i)
     {
-        myfile_rand << d(gen) << ' ';
+        myfile_rand << d(gen) << '\n';
     }
 
     myfile_rand << std::endl;
@@ -61,8 +61,8 @@ int main()
 
     myfile_rand.open ("data1.0.txt");
     
-    random1(data["k"], data["n"], myfile_rand);
-    random2(data["k"], data["n"], myfile_rand);
-    norm_distr(data["mu"], data["sigma"], data["k"], data["n"], myfile_rand);
+    //random1(data["k"], data["n"], myfile_rand);
+    //random2(data["k"], data["n"], myfile_rand);
+    norm_distr(data["mu"], data["sigma"], data["n"], myfile_rand);
     return 0;
 }
