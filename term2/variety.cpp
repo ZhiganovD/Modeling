@@ -45,17 +45,19 @@ int main()
 
     myfile_rand.open ("data2.0.txt");
 
-    float t = 1000.0;
-    float count = 0.0;
     
-    for (int i = 0; i < t; ++i)
+    for (int j = data["k"]; j < data["n"]; ++j)
     {
-        if(random1(static_cast<int>(data["k"]), data["n"]))
+        float t = 1000.0;
+        float count = 0.0;
+        for (int i = 0; i < t; ++i)
         {
-            ++count;
+            if(random1(static_cast<int>(data["k"]), j))
+            {
+                ++count;
+            }
         }
+        myfile_rand << j << " " << count / t << std::endl;
     }
-    std::cout << count / t << std::endl;
-    std::cout << count << std::endl;
     return 0;
 }
