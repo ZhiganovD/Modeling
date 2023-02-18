@@ -8,10 +8,12 @@ config = load(r)
 r.close()
 
 x_r = []
+y_r = []
 for i in range(0, config["n"]):
-    x_r.append(my_data_r[i])
+    x_r.append(my_data_r[i, 0])
+    y_r.append(my_data_r[i, 1])
     
-n, bins, patches = plt.hist(x_r, config["bins"], density=True, facecolor='g', alpha=0.75)
+n, bins, patches = plt.hist(y_r, x_r, density=True, facecolor='g', alpha=0.75)
 
 plt.grid(True)
 plt.show()
