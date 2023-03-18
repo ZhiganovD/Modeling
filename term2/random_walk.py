@@ -14,8 +14,11 @@ k = np.linspace(0, config["steps"], config["steps"])
 fig, axs = plt.subplots()
 fig.suptitle('Random walks in N steps')
     
-for i in range(config["particles"]):    
-    axs.plot(k, my_data_r[:, i], color = 'g')
+#for i in range(config["particles"]):    
+#    axs.plot(k, my_data_r[:, i], color = 'g')
+    
+#axs.plot(k, my_data_r[:, config["particles"]], color = 'r')
+axs.plot(k, np.abs(my_data_r[:]), color = 'r')
 
 
 plt.grid(True)

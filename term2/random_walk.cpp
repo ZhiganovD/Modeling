@@ -25,22 +25,26 @@ void random_walk(ComplexNum right, ComplexNum left, int n, std::ofstream &myfile
     std::random_device rd; // obtain a random number from hardware
     std::mt19937 gen(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, 1); // define the range
-    float open = start;
+    float open[particles];
+    std::fill_n(open, particles, start);
 
     for (int i = 0; i < n; ++i)
     {
+        float mean = 0.0;
         for (int j = 0; j < particles; ++j)
         {
-            myfile_rand << start << ' ';
+            //myfile_rand << open[j] << ' ';
+            mean += abs(open[j]);
             int k = distr(gen);
             if(k == 0)
             {
-                start += right.value;
+                open[j] += right.value;
             } else
             {
-                start += left.value;
+                open[j] += left.value;
             }
         }
+        myfile_rand << mean / particles << ' ';
         myfile_rand << std::endl;
     }
 

@@ -1,7 +1,7 @@
 {
-    "prob" : 0.5,
+    "prob" : 1.0,
     "steps" : 10000,
     "path" : 1.0, 
     "start" : 0.0,
-    "particles" : 100
+    "particles" : 100000
 }
