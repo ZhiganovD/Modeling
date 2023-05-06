@@ -4,5 +4,6 @@
     "rows" : 6,
     "columns" : 10,
     "delta" : 0.1,
-    "step" : 1
+    "step" : 1,
+    "iter" : 1000
 }

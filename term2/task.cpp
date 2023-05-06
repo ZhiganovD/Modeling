@@ -39,15 +39,13 @@ void laplas_t(std::vector<float>& grid1d, float dt, float d, std::ofstream &myfi
 {
     for(int i = 1; i < grid1d.size() - 1; ++i)
     {
-        grid1d[i] = grid1d[i] + (dt / (pow(d, 2))) * (grid1d[i + 1] - grid1d[i] - grid1d[i - 1]);
+        grid1d[i] = grid1d[i] + (dt / (pow(d, 2))) * (grid1d[i + 1] - grid1d[i] + grid1d[i - 1]);
     }
-    //print(grid1d, myfile_task);
 }
 
 void laplas(std::vector<float>& grid1d)
 {
     float b = (grid1d[grid1d.size() - 1] - Bine(grid1d.size() - 2) * grid1d[0]) / Bine(grid1d.size() - 1);
-    std::cout << b;
     for (int i = 1; i < grid1d.size() - 1; ++i)
     {
         grid1d[i] = grid1d[0] * Bine(i - 1) + b * Bine(i);
@@ -68,6 +66,7 @@ int main()
     float phi_k = data["phi_k"];
     float d = data["step"];
     float dt = data["delta"];
+    int num = data["iter"];
     std::vector<float> grid1d(rows, 0);
     grid1d[0] = phi_0;
     grid1d[rows - 1] = phi_k;
@@ -78,10 +77,14 @@ int main()
 
     print(grid1d, myfile_task);
 
-    for (float t = 0; t < 1; t += dt)
+    for (int i = 0; i < num; ++i)
     { 
         //std::cout << 'a' << '\n';
         laplas_t(grid1d, dt, d, myfile_task);
+        if (i % 10 == 0)
+        {
+            print(grid1d, myfile_task);
+        }
     }
 
     print(grid1d, myfile_task);
