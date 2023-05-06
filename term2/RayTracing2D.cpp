@@ -32,9 +32,10 @@ public:
 
     Laser(float x_0, float y_0, float angle): x_0(x_0), y_0(y_0), angle(angle) {}
 
-    bool do_interact(Object hit, Net grid):
-        if 
-
+    bool do_interact(Object hit, Net grid)
+    {
+        if ...;
+    }
 
 };
 
