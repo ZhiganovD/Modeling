@@ -19,10 +19,10 @@ r = open('task.json', 'r')
 config = load(r)
 r.close()
 
-mode = '2d'
+mode = '1d'
 
 if mode == '1d':
-    k = np.linspace(0, config["rows"], config["rows"])
+    k_1d = np.linspace(0, config["rows"], config["rows"])
     x_1d = []
     for i in range(0, config["iter"]):
         r = []
@@ -40,9 +40,9 @@ if mode == '2d':
         x_2d.append(r)
     
 fig, ax = plt.subplots() 
-c = ax.pcolor(x_2d)
+#c = ax.pcolor(x_2d)
 #ax.bar(names, x_r)
-#draw(k_2d, "2d", x_2d = x_2d, rows = config["rows"])
+draw(k_1d, mode, x_1d = x_1d, iter = config["iter"])
 
 
 

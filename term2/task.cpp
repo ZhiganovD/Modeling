@@ -130,9 +130,9 @@ int main()
     #pragma omp parallel for num_threads(n_thread)
     for (int i = 0; i < num; ++i)
     { 
-        //streams_1d(grid1d, sigma, d, dt);
+        streams_1d(grid1d, sigma, d, dt);
         streams_2d(grid2d, sigma, d, dt, rows, col);
-        //print(grid1d, myfile_task_1d);
+        print(grid1d, myfile_task_1d);
     }
     print_2d(grid2d, myfile_task_2d, rows, col);
     auto end = high_resolution_clock::now();
