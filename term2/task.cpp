@@ -1,28 +1,16 @@
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <map>
-#include <random>
 #include <cmath>
 #include <algorithm>
-#include <ctime>
-#include <cmath>
 #include "json.hpp"
 #include <fstream>
+#include <chrono>
+#include <ctime>
 #include <vector>
 using json = nlohmann::json;
 
-std::vector<std::vector<float>> grid2d;
-int Bine(int n)
-{
-    if (n == 0)
-    {
-        return 0.0;
-    } else
-    {
-        return (1 / sqrt(5)) * (pow((1 + sqrt(5)) / 2, n) - pow((1 - sqrt(5)) / 2, n));
-    }
-}
+//#pragma omp parallel for num_threads(4)
+
 
 void print(std::vector<float> grid1d, std::ofstream &myfile_task)
 {
@@ -30,6 +18,20 @@ void print(std::vector<float> grid1d, std::ofstream &myfile_task)
     {
         myfile_task << grid1d[i] << " ";
     }
+    myfile_task << '\n';
+}
+
+void print_2d(std::vector<std::vector<float>> grid2d, std::ofstream &myfile_task, int rows, int col)
+{
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            myfile_task << grid2d[i][j] << ' ';
+        }
+        myfile_task << std::endl;
+    }
+    myfile_task << '\n';
     myfile_task << '\n';
 }
 
@@ -43,51 +45,90 @@ void laplas_t(std::vector<float>& grid1d, float dt, float d, std::ofstream &myfi
     }
 }
 
-void laplas(std::vector<float>& grid1d)
+
+void streams_1d(std::vector<float>& grid1d, float sigma, float step, float delta)
 {
-    float b = (grid1d[grid1d.size() - 1] - Bine(grid1d.size() - 2) * grid1d[0]) / Bine(grid1d.size() - 1);
     for (int i = 1; i < grid1d.size() - 1; ++i)
     {
-        grid1d[i] = grid1d[0] * Bine(i - 1) + b * Bine(i);
+        float j_left = (grid1d[i] - grid1d[i - 1]) * sigma / step;
+        float j_right = (grid1d[i + 1] - grid1d[i]) * sigma / step;
+        float j_sum = (j_right - j_left) / step;
+
+        grid1d[i] += j_sum * delta;
     }
 }
+
+void streams_2d(std::vector<std::vector<float>>& grid2d, float sigma, float step, float delta, float rows, float col)
+{
+    for (int i = 1; i < rows - 1; ++i)
+    {
+        for (int j = 1; j < col -1; ++j)
+        {
+            float j_left = (grid2d[i][j] - grid2d[i][j - 1]) * sigma / step;
+            float j_right = (grid2d[i][j + 1] - grid2d[i][j]) * sigma / step;
+            float j_down = (grid2d[i][j] - grid2d[i - 1][j]) * sigma / step;
+            float j_up = (grid2d[i + 1][j] - grid2d[i][j]) * sigma / step;
+            float j_sum = (j_right - j_left) / step + (j_up - j_down) / step;
+
+            grid2d[i][j] += j_sum * delta;
+        }
+    }
+}
+
+
 
 
 int main()
 {
     std::ifstream argv("task.json");
     json data = json::parse(argv);
-    std::ofstream myfile_task;
+    std::ofstream myfile_task_1d;
+    std::ofstream myfile_task_2d;
 
-    myfile_task.open ("task.txt");
-    int rows = data["rows"];
-    int col = data["columns"];
+    myfile_task_1d.open ("task_1d.txt");
+    myfile_task_2d.open ("task_2d.txt");
+    int const rows = data["rows"];
+    int const col = data["columns"];
     float phi_0 = data["phi_0"];
     float phi_k = data["phi_k"];
     float d = data["step"];
     float dt = data["delta"];
     int num = data["iter"];
+    float sigma = data["sigma"];
     std::vector<float> grid1d(rows, 0);
-    grid1d[0] = phi_0;
-    grid1d[rows - 1] = phi_k;
-
-    print(grid1d, myfile_task);
-
-    laplas(grid1d);
-
-    print(grid1d, myfile_task);
-
-    for (int i = 0; i < num; ++i)
-    { 
-        //std::cout << 'a' << '\n';
-        laplas_t(grid1d, dt, d, myfile_task);
-        if (i % 10 == 0)
+    std::vector<std::vector<float>> grid2d;
+    grid2d.resize(rows, std::vector<float>(col));
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < col; ++j)
         {
-            print(grid1d, myfile_task);
+            grid2d[i].push_back(0);
         }
     }
+    for (int i = 0; i < rows; ++i)
+    {
+        grid2d[i][0] = 2 * phi_0 - grid2d[i][1];
+        grid2d[i][col - 1] = 2 * phi_k - grid2d[i][col - 2];
+    }
+    grid1d[0] = 2 * phi_0 - grid1d[1];
+    grid1d[rows - 1] = 2 * phi_k - grid1d[rows - 2];
 
-    print(grid1d, myfile_task);
+    print(grid1d, myfile_task_1d);
+    print_2d(grid2d, myfile_task_2d, rows, col);
+
+    std ::cout << grid2d[0].size() << ' ';
+
+    auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < num; ++i)
+    { 
+        streams_1d(grid1d, sigma, d, dt);
+        streams_2d(grid2d, sigma, d, dt, rows, col);
+        print(grid1d, myfile_task_1d);
+        print_2d(grid2d, myfile_task_2d, rows, col);
+    }
+    auto end = std::chrono::steady_clock::now();
+
+    //std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
     
     return 0;

@@ -1,9 +1,10 @@
 {
     "phi_0" : 1,
     "phi_k" : 10,
-    "rows" : 6,
+    "rows" : 20,
     "columns" : 10,
     "delta" : 0.1,
     "step" : 1,
-    "iter" : 1000
+    "iter" : 8000,
+    "sigma" : 0.5
 }
