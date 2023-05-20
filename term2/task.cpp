@@ -9,6 +9,8 @@
 #include <vector>
 using json = nlohmann::json;
 using namespace std::chrono;
+
+#define n_thread 6
 //#pragma omp parallel for num_threads(4)
 
 
@@ -60,11 +62,14 @@ void streams_1d(std::vector<float>& grid1d, float sigma, float step, float delta
 
 void streams_2d(std::vector<std::vector<float>>& grid2d, float sigma, float step, float delta, float rows, float col)
 {
+    #pragma omp parallel for num_threads(n_thread)
     for (int j = 1; j < col -1; ++j)
     {
         grid2d[0][j] = grid2d[1][j];
         grid2d[rows - 1][j] = grid2d[rows - 2][j];
     }
+
+    #pragma omp parallel for num_threads(n_thread)
     for (int i = 1; i < rows - 1; ++i)
     {
         for (int j = 1; j < col -1; ++j)
@@ -122,6 +127,7 @@ int main()
     //print_2d(grid2d, myfile_task_2d, rows, col);
 
     auto start = high_resolution_clock::now();
+    #pragma omp parallel for num_threads(n_thread)
     for (int i = 0; i < num; ++i)
     { 
         //streams_1d(grid1d, sigma, d, dt);
