@@ -19,25 +19,30 @@ r = open('task.json', 'r')
 config = load(r)
 r.close()
 
-x_1d = []
-for i in range(0, config["iter"]):
-    r = []
-    for j in range(0, config["rows"]):
-        r.append(my_data_r_1d[i][j])
-    x_1d.append(r)
-    
-x_2d = []
-for i in range(0, config["rows"]):
-    r = []
-    for j in range(0, config["columns"]):
-        r.append(my_data_r_2d[i - config["rows"]][j])
-    x_2d.append(r)
+mode = '2d'
+
+if mode == '1d':
+    k = np.linspace(0, config["rows"], config["rows"])
+    x_1d = []
+    for i in range(0, config["iter"]):
+        r = []
+        for j in range(0, config["rows"]):
+            r.append(my_data_r_1d[i][j])
+        x_1d.append(r)
+
+if mode == '2d':
+    k_2d = np.linspace(0, config["columns"], config["columns"])  
+    x_2d = []
+    for i in range(0, config["rows"]):
+        r = []
+        for j in range(0, config["columns"]):
+            r.append(my_data_r_2d[i - config["rows"]][j])
+        x_2d.append(r)
     
 fig, ax = plt.subplots() 
-k = np.linspace(0, config["rows"], config["rows"])
-k_2d = np.linspace(0, config["columns"], config["columns"])
+c = ax.pcolor(x_2d)
 #ax.bar(names, x_r)
-draw(k_2d, "2d", x_2d = x_2d, rows = config["rows"])
+#draw(k_2d, "2d", x_2d = x_2d, rows = config["rows"])
 
 
 

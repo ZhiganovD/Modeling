@@ -8,7 +8,7 @@
 #include <ctime>
 #include <vector>
 using json = nlohmann::json;
-
+using namespace std::chrono;
 //#pragma omp parallel for num_threads(4)
 
 
@@ -60,6 +60,11 @@ void streams_1d(std::vector<float>& grid1d, float sigma, float step, float delta
 
 void streams_2d(std::vector<std::vector<float>>& grid2d, float sigma, float step, float delta, float rows, float col)
 {
+    for (int j = 1; j < col -1; ++j)
+    {
+        grid2d[0][j] = grid2d[1][j];
+        grid2d[rows - 1][j] = grid2d[rows - 2][j];
+    }
     for (int i = 1; i < rows - 1; ++i)
     {
         for (int j = 1; j < col -1; ++j)
@@ -113,22 +118,21 @@ int main()
     grid1d[0] = 2 * phi_0 - grid1d[1];
     grid1d[rows - 1] = 2 * phi_k - grid1d[rows - 2];
 
-    print(grid1d, myfile_task_1d);
-    print_2d(grid2d, myfile_task_2d, rows, col);
+    //print(grid1d, myfile_task_1d);
+    //print_2d(grid2d, myfile_task_2d, rows, col);
 
-    std ::cout << grid2d[0].size() << ' ';
-
-    auto start = std::chrono::steady_clock::now();
+    auto start = high_resolution_clock::now();
     for (int i = 0; i < num; ++i)
     { 
-        streams_1d(grid1d, sigma, d, dt);
+        //streams_1d(grid1d, sigma, d, dt);
         streams_2d(grid2d, sigma, d, dt, rows, col);
-        print(grid1d, myfile_task_1d);
-        print_2d(grid2d, myfile_task_2d, rows, col);
+        //print(grid1d, myfile_task_1d);
     }
-    auto end = std::chrono::steady_clock::now();
+    print_2d(grid2d, myfile_task_2d, rows, col);
+    auto end = high_resolution_clock::now();
 
-    //std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    auto duration = duration_cast<microseconds>(end - start);
+    std::cout <<  duration.count() << std::endl;
 
     
     return 0;

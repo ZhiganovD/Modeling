@@ -10,7 +10,7 @@
       "cppStandard": "${default}",
       "intelliSenseMode": "macos-clang-arm64",
       "compilerArgs": [
-        ""
+        "--std=c++14"
       ]
     }
   ],

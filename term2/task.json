@@ -1,8 +1,8 @@
 {
     "phi_0" : 1,
     "phi_k" : 10,
-    "rows" : 20,
-    "columns" : 10,
+    "rows" : 100,
+    "columns" : 100,
     "delta" : 0.1,
     "step" : 1,
     "iter" : 8000,
